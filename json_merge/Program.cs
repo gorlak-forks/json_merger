@@ -26,7 +26,7 @@ namespace json_merge
             if (_window)
             {
                 string s2 = s.Replace("\n", "\r\n");
-                DiffForm f = new DiffForm();
+                TextForm f = new TextForm();
                 f.Text = title;
                 f.DisplayText = s2;
                 f.ShowDialog();

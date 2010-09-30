@@ -50,11 +50,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DiffForm.cs">
+    <Compile Include="TextForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DiffForm.Designer.cs">
-      <DependentUpon>DiffForm.cs</DependentUpon>
+    <Compile Include="TextForm.Designer.cs">
+      <DependentUpon>TextForm.cs</DependentUpon>
     </Compile>
     <Compile Include="DiffVisualForm.cs">
       <SubType>Form</SubType>
@@ -79,8 +79,8 @@
     <Compile Include="Win32.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="DiffForm.resx">
-      <DependentUpon>DiffForm.cs</DependentUpon>
+    <EmbeddedResource Include="TextForm.resx">
+      <DependentUpon>TextForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="DiffVisualForm.resx">
       <DependentUpon>DiffVisualForm.cs</DependentUpon>

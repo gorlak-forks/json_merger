@@ -9,9 +9,9 @@ using System.Windows.Forms;
 
 namespace json_merge
 {
-    public partial class DiffForm : Form
+    public partial class TextForm : Form
     {
-        public DiffForm()
+        public TextForm()
         {
             InitializeComponent();
         }
