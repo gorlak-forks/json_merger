@@ -6,13 +6,40 @@ using System.Text;
 
 namespace json_merge
 {
+    /// <summary>
+    /// Helper class for dealing with id-arrays. ID-arrays are arrays where the entries
+    /// are hash tables that contain an "id" field that uniquely identifies the entry
+    /// with a GUID.
+    /// 
+    /// Id-arrays can be merged better than regular arrays. Since each entry in an
+    /// id-array has a unique identity it is easy to tell if an item has been moved,
+    /// if an existing item has been changed or if a new item has been created.
+    /// 
+    /// Arrays that don't have IDs are called position arrays and are harder to diff and merge.
+    /// For example consider [1 2 3] -> [1 5 2] we can't tell semantically whether the
+    /// 2 has changed to 5 and 3 has changed to 2... or if the 2 has been moved and 3 changed
+    /// to 5... or if 2 and 3 have been removed and 5 2 inserted, etc, etc.
+    /// 
+    /// For best merge results, when you have control over the file format, always use id arrays
+    /// when you want to preserve item identity.
+    /// </summary>
     public static class Id
     {
+        /// <summary>
+        /// Returns true if the hashtable contains an id field. Currently id fields can use one
+        /// of the keys: id, Id, ID. I suggest you modify this if you want to use other keys for
+        /// id fields.
+        /// </summary>
         public static bool ContainsId(Hashtable a)
         {
             return a.ContainsKey("id") || a.ContainsKey("Id") || a.ContainsKey("ID");
         }
 
+        /// <summary>
+        /// Returns the id of an object or null if it doesn't has one. The id is either the
+        /// id field. Or, if the object is a string, the id is the string itself. (So string arrays
+        /// will merge as id arrays with the ids being the strings themselves.)
+        /// </summary>
         public static object GetId(object a)
         {
             if (a is Hashtable)
@@ -27,6 +54,9 @@ namespace json_merge
             return null;
         }
 
+        /// <summary>
+        /// Finds the object with the specified id in the array and returns it.
+        /// </summary>
         public static object FindObjectWithId(ArrayList a, object id)
         {
             foreach (object o in a)
@@ -35,6 +65,9 @@ namespace json_merge
             return null;
         }
 
+        /// <summary>
+        /// Finds the index of object with the specified id in the array and returns it.
+        /// </summary>
         public static int FindIndexWithId(ArrayList a, object id)
         {
             for (int i=0; i<a.Count; ++i)
@@ -455,6 +488,9 @@ namespace json_merge
         /// <summary>
         /// Returns true if a and b are "id"-arrays, where the elements are identified by id rather
         /// than by position.
+        /// 
+        /// An array is an id array if either all objects in the array have id-fields or if all objects
+        /// are strings.
         /// </summary>
         private static bool AreIdArrays(ArrayList a, ArrayList b)
         {
@@ -570,7 +606,7 @@ namespace json_merge
         }
 
         /// <summary>
-        /// Computes the three-way-merge of Json hashtables and returns intermediate results.
+        /// Computes the three-way-merge of Json hashtables and returns the intermediate diff results.
         /// </summary>
         public static Hashtable MergeDetailed(Hashtable parent, Hashtable left, Hashtable right,
             out HashDiff left_diff, out HashDiff right_diff, out HashDiff merged_diff)

@@ -56,6 +56,9 @@ namespace json_merge
             fs.Close();
         }
 
+        /// <summary>
+        /// Writes a newline and the desired ammount of indentation.
+        /// </summary>
         public static void WriteNewLine(StringBuilder builder, int indentation)
         {
             builder.Append('\n');
@@ -63,6 +66,9 @@ namespace json_merge
                 builder.Append("    ");
         }
 
+        /// <summary>
+        /// Writes a generic object.
+        /// </summary>
         public static void Write(object o, StringBuilder builder, int indentation)
         {
             if (o == null)
@@ -87,6 +93,9 @@ namespace json_merge
                 throw new ArgumentException("Unknown object");
         }
 
+        /// <summary>
+        /// Writes a string.
+        /// </summary>
         public static void WriteString(String s, StringBuilder builder)
         {
             builder.Append('"');
@@ -109,6 +118,9 @@ namespace json_merge
             builder.Append('"');
         }
 
+        /// <summary>
+        /// Writes an array of items.
+        /// </summary>
         public static void WriteArray(ArrayList a, StringBuilder builder, int indentation)
         {
             bool write_comma = false;
@@ -126,6 +138,9 @@ namespace json_merge
             builder.Append(']');
         }
 
+        /// <summary>
+        /// Writes a particular field in a JSON object.
+        /// </summary>
         public static void WriteObjectField(Hashtable t, string key, bool write_comma, StringBuilder builder, int indentation)
         {
             if (write_comma)
@@ -136,6 +151,9 @@ namespace json_merge
             Write(t[key], builder, indentation);
         }
 
+        /// <summary>
+        /// Writes all the fields of a JSON object.
+        /// </summary>
         public static void WriteObjectFields(Hashtable t, StringBuilder builder, int indentation)
         {
             List<string> keys = t.Keys.Cast<string>().ToList();
@@ -148,6 +166,9 @@ namespace json_merge
             }
         }
 
+        /// <summary>
+        /// Writes a JSON object.
+        /// </summary>
         public static void WriteObject(Hashtable t, StringBuilder builder, int indentation)
         {
             builder.Append('{');

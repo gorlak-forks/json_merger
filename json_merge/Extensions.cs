@@ -7,8 +7,14 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace json_merge
 {
+    /// <summary>
+    /// Extensions to the Dictionary class.
+    /// </summary>
     public static class DictionaryDefaultExtension
     {
+        /// <summary>
+        /// Returns the value for the key if it exists, otherwise the specified default value.
+        /// </summary>
         public static V GetValueOrDefault<K, V>(this Dictionary<K, V> dic, K key, V def)
         {
             V ret;
@@ -18,8 +24,14 @@ namespace json_merge
         }
     }
 
+    /// <summary>
+    /// Extensions to clone objects. 
+    /// </summary>
     public static class ObjectCloneExtension
     {
+        /// <summary>
+        /// Clones the object through the binary serializer.
+        /// </summary>
         public static T DeepClone<T>(this T a)
         {
             using (Stream stream = new MemoryStream())
