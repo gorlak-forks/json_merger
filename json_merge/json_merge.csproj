@@ -62,6 +62,8 @@
     <Compile Include="DiffVisualForm.Designer.cs">
       <DependentUpon>DiffVisualForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Extensions.cs" />
+    <Compile Include="Formatters.cs" />
     <Compile Include="JSON.cs" />
     <Compile Include="JsonDiff.cs" />
     <Compile Include="MergeVisualForm.cs">
@@ -74,6 +76,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SJSON.cs" />
     <Compile Include="Test.cs" />
+    <Compile Include="Win32.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="DiffForm.resx">
