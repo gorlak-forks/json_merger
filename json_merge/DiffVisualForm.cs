@@ -10,14 +10,32 @@ using System.Windows.Forms;
 
 namespace json_merge
 {
+    /// <summary>
+    /// Form that displays the difference between two JSON files.
+    /// </summary>
     public partial class DiffVisualForm : Form
     {
+        // Used to format the data
         IFormatter _af, _bf;
+
+        // Are we using _json format.
         bool _json;
+
+        // Stores the lines that contain any differences.
         List<int> _diff_lines = new List<int>();
-        int _last_diff_line = 0;
+
+        // Current line in _diff_lines that is displayed.
         int _current_diff = 0;
 
+        // Used when building _diff_lines to coalesc contigous blocks.
+        int _last_diff_line = 0;
+       
+        /// <summary>
+        /// Shows the difference between the two JSON objects a and b.
+        /// Diff is the computed difference between the objects.
+        /// If json is set to true, the output is showed in JSON format,
+        /// otherwise SJSON format is used.
+        /// </summary>
         public DiffVisualForm(Hashtable a, Hashtable b, HashDiff diff, bool json)
         {
             InitializeComponent();
@@ -50,7 +68,9 @@ namespace json_merge
             bTextBox.SelectionLength = 0;
         }
 
-        private void MakeEqualLength(ref string a, ref string b)
+        // Make sure that strings a and b contain the same number of lines, padding
+        // them at the end if necessary.
+        private void MakeEqualLineLength(ref string a, ref string b)
         {
             int na = 0; int nb = 0;
             for (int i = 0; i < a.Length; ++i)
@@ -71,6 +91,7 @@ namespace json_merge
             }
         }
 
+        // Inserts text that has been removed in the new file.
         private void RemovedText(string astr, string bstr)
         {
             if (aTextBox.Lines.Count() != _last_diff_line + 1)
@@ -80,7 +101,7 @@ namespace json_merge
             aTextBox.SelectionBackColor = Color.Pink;
             bTextBox.SelectionBackColor = Color.Pink;
 
-            MakeEqualLength(ref astr, ref bstr);
+            MakeEqualLineLength(ref astr, ref bstr);
             aTextBox.AppendText(astr);
             bTextBox.AppendText(bstr);
 
@@ -88,6 +109,7 @@ namespace json_merge
             bTextBox.SelectionBackColor = Color.White;
         }
 
+        // Inserts text that has been changed in the new file.
         private void ChangedText(string astr, string bstr)
         {
             if (aTextBox.Lines.Count() != _last_diff_line + 1)
@@ -97,7 +119,7 @@ namespace json_merge
             aTextBox.SelectionBackColor = Color.Yellow;
             bTextBox.SelectionBackColor = Color.Yellow;
 
-            MakeEqualLength(ref astr, ref bstr);
+            MakeEqualLineLength(ref astr, ref bstr);
             aTextBox.AppendText(astr);
             bTextBox.AppendText(bstr);
 
@@ -105,13 +127,15 @@ namespace json_merge
             bTextBox.SelectionBackColor = Color.White;
         }
 
+        // Inserts text that is the same in the old and new file.
         private void SameText(string a, string b)
         {
             aTextBox.AppendText(a);
             bTextBox.AppendText(b);
         }
 
-        public void DisplayDiff(Hashtable a, Hashtable b, HashDiff diff, int indent)
+        // Shows the difference between two hash tables. 
+        private void DisplayDiff(Hashtable a, Hashtable b, HashDiff diff, int indent)
         {
             HashSet<string> keys = new HashSet<string>();
             foreach (string key in a.Keys) keys.Add(key);
@@ -150,6 +174,7 @@ namespace json_merge
             }
         }
 
+        // Shows the difference between two array entries.
         private void DisplayArrayDiff(object ao, object bo, DiffOperation dop, int indent)
         {
             if (dop is RemoveOperation)
@@ -178,6 +203,7 @@ namespace json_merge
                 SameText(_af.ArrayItem(ao, indent), _bf.ArrayItem(bo, indent));
         }
 
+        // Shows the difference between two arrays that use the position-merge method.
         private void DisplayDiff(ArrayList a, ArrayList b, PositionArrayDiff diff, int indent)
         {
             int n = Math.Max(a.Count, b.Count);
@@ -188,6 +214,7 @@ namespace json_merge
             }
         }
 
+        // Shows the difference between two arrays that use the id-merge method.
         private void DisplayDiff(ArrayList a, ArrayList b, HashDiff diff, int indent)
         {
             HashSet<object> keys = new HashSet<object>();
@@ -204,8 +231,10 @@ namespace json_merge
             }
         }
 
+        // Set if we are already processing a scroll event to prevent infinite scrolling.
         private bool _recursing = false;
 
+        // Synchronize textbox scrolling.
         private void aTextBox_Scroll(object sender, EventArgs e)
         {
             if (_recursing) return;
@@ -214,6 +243,7 @@ namespace json_merge
             _recursing = false;
         }
 
+        // Synchronize textbox scrolling.
         private void bTextBox_Scroll(object sender, EventArgs e)
         {
             if (_recursing) return;
@@ -222,6 +252,7 @@ namespace json_merge
             _recursing = false;
         }
 
+        // Scroll to the current entry in the _diff_lines array.
         private void ScrollToCurrentDiff()
         {
             Win32.SendMessage(aTextBox.Handle, Win32.EM_LINESCROLL, 0, -100000);
@@ -232,6 +263,7 @@ namespace json_merge
             Win32.SetScrollPos(bTextBox.Handle, Win32.GetScrollPos(aTextBox.Handle));
         }
 
+        // Scroll to next entry in the _diff_lines array.
         private void nextDifferenceToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ++_current_diff;
@@ -240,6 +272,7 @@ namespace json_merge
             ScrollToCurrentDiff();
         }
 
+        // Scroll to the previous entry in the _diff_lines array.
         private void previousDifferenceToolStripMenuItem_Click(object sender, EventArgs e)
         {
             --_current_diff;
