@@ -229,22 +229,33 @@ namespace json_merge
             }
         }
 
+        private bool _recursing = false;
+
         private void aTextBox_Scroll(object sender, EventArgs e)
         {
+            if (_recursing) return;
+            _recursing = true;
             Win32.SetScrollPos(bTextBox.Handle, Win32.GetScrollPos(aTextBox.Handle));
             Win32.SetScrollPos(cTextBox.Handle, Win32.GetScrollPos(aTextBox.Handle));
+            _recursing = false;
         }
 
         private void bTextBox_Scroll(object sender, EventArgs e)
         {
+            if (_recursing) return;
+            _recursing = true;
             Win32.SetScrollPos(aTextBox.Handle, Win32.GetScrollPos(bTextBox.Handle));
             Win32.SetScrollPos(cTextBox.Handle, Win32.GetScrollPos(bTextBox.Handle));
+            _recursing = false;
         }
 
         private void cTextBox_Scroll(object sender, EventArgs e)
         {
+            if (_recursing) return;
+            _recursing = true;
             Win32.SetScrollPos(aTextBox.Handle, Win32.GetScrollPos(cTextBox.Handle));
             Win32.SetScrollPos(bTextBox.Handle, Win32.GetScrollPos(cTextBox.Handle));
+            _recursing = false;
         }
 
         private void ScrollToCurrentDiff()
