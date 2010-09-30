@@ -18,6 +18,11 @@ namespace json_merge
         Dictionary<string, int> _line_number = new Dictionary<string, int>();
         bool _line_numbers_changed;
 
+        List<int> _diff_lines = new List<int>();
+        HashSet<int> _diff_lines_set = new HashSet<int>();
+        int _last_diff_line = 0;
+        int _current_diff = 0;
+
         public MergeVisualForm(Hashtable parent, Hashtable a, HashDiff adiff, 
             Hashtable b, HashDiff bdiff, Hashtable c, HashDiff cdiff, bool json)
         {
@@ -52,6 +57,8 @@ namespace json_merge
 
             do
             {
+                _diff_lines_set.Clear();
+
                 aTextBox.Text = "";
                 bTextBox.Text = "";
                 cTextBox.Text = "";
@@ -60,6 +67,11 @@ namespace json_merge
                 DisplayDiff(bTextBox, _bf, parent, b, bdiff, 0, "");
                 DisplayDiff(cTextBox, _cf, parent, c, cdiff, 0, "");
             } while (_line_numbers_changed);
+
+            _diff_lines_set.Add(0);
+            _diff_lines_set.Add(aTextBox.Lines.Count());
+            _diff_lines = _diff_lines_set.OrderBy(i => i).ToList();
+            _current_diff = 0;
 
             aTextBox.SelectionStart = 0;
             aTextBox.SelectionLength = 0;
@@ -76,6 +88,11 @@ namespace json_merge
 
         public void RemovedText(RichTextBox rtb, string s)
         {
+            if (aTextBox.Lines.Count() != _last_diff_line + 1)
+                _diff_lines_set.Add(aTextBox.Lines.Count());
+            _last_diff_line = aTextBox.Lines.Count();
+
+            int start = rtb.Lines.Count();
             rtb.SelectionBackColor = Color.Pink;
             rtb.AppendText(s);
             rtb.SelectionBackColor = Color.White;
@@ -83,6 +100,11 @@ namespace json_merge
 
         public void ChangedText(RichTextBox rtb, string before, string after)
         {
+            if (aTextBox.Lines.Count() != _last_diff_line + 1)
+                _diff_lines_set.Add(aTextBox.Lines.Count());
+            _last_diff_line = aTextBox.Lines.Count();
+
+            int start = rtb.Lines.Count();
             rtb.SelectionBackColor = Color.Pink;
             rtb.AppendText(before);
             rtb.SelectionBackColor = Color.Yellow;
@@ -223,6 +245,33 @@ namespace json_merge
         {
             Win32.SetScrollPos(aTextBox.Handle, Win32.GetScrollPos(cTextBox.Handle));
             Win32.SetScrollPos(bTextBox.Handle, Win32.GetScrollPos(cTextBox.Handle));
+        }
+
+        private void ScrollToCurrentDiff()
+        {
+            Win32.SendMessage(aTextBox.Handle, Win32.EM_LINESCROLL, 0, -100000);
+            int line = _diff_lines[_current_diff] - 10;
+            if (line < 0)
+                line = 0;
+            Win32.SendMessage(aTextBox.Handle, Win32.EM_LINESCROLL, 0, line);
+            Win32.SetScrollPos(bTextBox.Handle, Win32.GetScrollPos(aTextBox.Handle));
+            Win32.SetScrollPos(cTextBox.Handle, Win32.GetScrollPos(aTextBox.Handle));
+        }
+
+        private void nextDifferenceToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ++_current_diff;
+            if (_current_diff >= _diff_lines.Count)
+                _current_diff = _diff_lines.Count - 1;
+            ScrollToCurrentDiff();
+        }
+
+        private void previousDifferenceToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            --_current_diff;
+            if (_current_diff < 0)
+                _current_diff = 0;
+            ScrollToCurrentDiff();
         }
     }
 }
