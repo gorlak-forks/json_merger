@@ -9,12 +9,16 @@ namespace json_merge
 {
     using HWND = System.IntPtr;
 
+    /// <summary>
+    /// helper function for working with windows.
+    /// </summary>
     public class Win32
     {
         private Win32()
         {
         }
 
+        // Windows messages.
         public const int WM_USER = 0x400;
         public const int EM_GETSCROLLPOS = (WM_USER + 221);
         public const int EM_SETSCROLLPOS = (WM_USER + 222);
@@ -37,6 +41,9 @@ namespace json_merge
         [DllImport("user32")]
         public static extern int SendMessage(HWND hwnd, int wMsg, int wParam, int lParam);
 
+        /// <summary>
+        /// Get the scroll position of a text box.
+        /// </summary>
         public static unsafe Win32.POINT GetScrollPos(IntPtr handle)
         {
             Win32.POINT res = new Win32.POINT();
@@ -45,12 +52,26 @@ namespace json_merge
             return res;
         }
 
+        /// <summary>
+        /// Set the scroll position of a text box.
+        /// </summary>
         public static unsafe void SetScrollPosRaw(IntPtr handle, Win32.POINT point)
         {
             IntPtr ptr = new IntPtr(&point);
             Win32.SendMessage(handle, Win32.EM_SETSCROLLPOS, 0, ptr);
         }
 
+        /// <summary>
+        /// Helper function for dealing with strange Windows behavior.
+        /// When a text box is bigger than 65535 pixels, Windows applies some strange
+        /// scaling to whatever value you pass in to SetScrollPos(). The same scaling
+        /// is not applied to GetScrollPos(), meaning that if you set the scroll pos
+        /// to the value you just received from GetScrollPos(), the position will
+        /// actually jump.
+        /// 
+        /// This function compensates for that by finding a value to send to SetScrollPos
+        /// so that GetScrollPos() returns the value specified by point.
+        /// </summary>
         public static void SetScrollPos(IntPtr handle, Win32.POINT point)
         {
             double t0 = -1, t1 = 0, y0 = -1, y1 = 0;

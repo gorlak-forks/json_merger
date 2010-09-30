@@ -10,18 +10,35 @@ using System.Windows.Forms;
 
 namespace json_merge
 {
+    /// <summary>
+    /// Form that displays the result of a merge operation visually. Note that currently there
+    /// are no ways of affecting the outcome of the merge, the display is just for information.
+    /// </summary>
     public partial class MergeVisualForm : Form
     {
+        // Formatters for the a, b and c objects.
         IFormatter _af, _bf, _cf;
+
+        // True if json formatting is used.
         bool _json;
 
+        // Dictionary that maps key paths to the line number where that key can be found.
+        // This is used to match up line numbers in the different views in a rather inefficient
+        // way (see below).
         Dictionary<string, int> _line_number = new Dictionary<string, int>();
+
+        // Set if a change has been made to the _line_number dictionary.
         bool _line_numbers_changed;
 
+        // A list of the lines where differences have been found, used for prev/next jumping.
         List<int> _diff_lines = new List<int>();
+
+        // The current difference that is highlighted.
+        int _current_diff = 0;
+        
+        // Stores the diff_lines during document generation.
         HashSet<int> _diff_lines_set = new HashSet<int>();
         int _last_diff_line = 0;
-        int _current_diff = 0;
 
         public MergeVisualForm(Hashtable parent, Hashtable a, HashDiff adiff, 
             Hashtable b, HashDiff bdiff, Hashtable c, HashDiff cdiff, bool json)
@@ -42,19 +59,24 @@ namespace json_merge
                 _cf = new SjsonFormatter();
             }
 
-            /*
-
-            if (_json)
-            {
-                SameText("{", "{");
-                DisplayDiff(a, b, diff, 1);
-                SameText("\n}", "\n}");
-            }
-            else
-                
-               DisplayDiff(a, b, diff, 0);
-            */
-
+            // This while loop is a rather ugly thing.
+            //
+            // We use the _line_number Dictionary to store the highest line number where
+            // a particular key path (e.g. items.size.x) have been displayed in any of the
+            // views. When a view wants to display a particular key, it pads the text with
+            // newlines so that the key appears at the maximum line number where it has
+            // appeared before. If the current line number is higher than the previous
+            // maximum, the _line_number Dictionary is updated with the new maximum and
+            // _line_numbers_changed is true.
+            //
+            // By looping here and reformatting the text until _line_number is no longer
+            // changing we ensure that all keys are displayed at the same line in all three
+            // views, so that we can scroll them simultaneously.
+            //
+            // In theory, this could take quite some time for the worst-case scenario and
+            // it would be better to rewrite the code so that we are formatting the three views
+            // simultaneously, padding with newlines as we go along. However, that is rather
+            // hairy to write and this seems to work well for now.
             do
             {
                 _diff_lines_set.Clear();
@@ -63,9 +85,26 @@ namespace json_merge
                 bTextBox.Text = "";
                 cTextBox.Text = "";
                 _line_numbers_changed = false;
-                DisplayDiff(aTextBox, _af, parent, a, adiff, 0, "");
-                DisplayDiff(bTextBox, _bf, parent, b, bdiff, 0, "");
-                DisplayDiff(cTextBox, _cf, parent, c, cdiff, 0, "");
+                int indent = 0;
+
+                if (_json)
+                {
+                    SameText(aTextBox, "{");
+                    SameText(bTextBox, "{");
+                    SameText(cTextBox, "{");
+                    indent = 1;
+                }
+
+                DisplayDiff(aTextBox, _af, parent, a, adiff, indent, "");
+                DisplayDiff(bTextBox, _bf, parent, b, bdiff, indent, "");
+                DisplayDiff(cTextBox, _cf, parent, c, cdiff, indent, "");
+
+                if (_json)
+                {
+                    SameText(aTextBox, "\n}");
+                    SameText(bTextBox, "\n}");
+                    SameText(cTextBox, "\n}");
+                }
             } while (_line_numbers_changed);
 
             _diff_lines_set.Add(0);
@@ -81,12 +120,15 @@ namespace json_merge
             cTextBox.SelectionLength = 0;
         }
 
-        public void SameText(RichTextBox rtb, string s)
+        // Shows unchanged text in the textbox.
+        private void SameText(RichTextBox rtb, string s)
         {
             rtb.AppendText(s);
         }
 
-        public void RemovedText(RichTextBox rtb, string s)
+        // Shows removed text in the text box. I would like to use strikeout for removed
+        // text, but I can't find a way to set that for the RichTextBox.
+        private void RemovedText(RichTextBox rtb, string s)
         {
             if (aTextBox.Lines.Count() != _last_diff_line + 1)
                 _diff_lines_set.Add(aTextBox.Lines.Count());
@@ -98,7 +140,8 @@ namespace json_merge
             rtb.SelectionBackColor = Color.White;
         }
 
-        public void ChangedText(RichTextBox rtb, string before, string after)
+        // Shows changed text in the text box.
+        private void ChangedText(RichTextBox rtb, string before, string after)
         {
             if (aTextBox.Lines.Count() != _last_diff_line + 1)
                 _diff_lines_set.Add(aTextBox.Lines.Count());
@@ -112,7 +155,12 @@ namespace json_merge
             rtb.SelectionBackColor = Color.White;
         }
 
-        public void CheckLineNumber(RichTextBox rtb, string path)
+        // Checks the line number for the key path. If it has been displayed before at
+        // a higher line number, we pad with newlines to get the key at the same line.
+        // If it has been displayed before at a lower line number, we update the dictionary
+        // with the current line number and specify that the texts must be regenerated
+        // so that line numbers match in all three displays.
+        private void CheckLineNumber(RichTextBox rtb, string path)
         {
             int line_no = _line_number.GetValueOrDefault(path, 0);
             if (rtb.Lines.Count() > line_no)
@@ -125,6 +173,7 @@ namespace json_merge
                 rtb.AppendText("\n");
         }
 
+        // Shows the difference between a and b in the text box.
         private void DisplayDiff(RichTextBox rtb, IFormatter f, Hashtable a, Hashtable b, HashDiff diff, 
             int indent, string path)
         {
@@ -168,6 +217,7 @@ namespace json_merge
             }
         }
 
+        // Shows the difference between ao and bo in the text box.
         private void DisplayArrayDiff(RichTextBox rtb, IFormatter f, object ao, object bo, DiffOperation dop,
             int indent, string path)
         {
@@ -198,6 +248,7 @@ namespace json_merge
                 SameText(rtb, f.ArrayItem(ao, indent));
         }
 
+        // Shows the difference between a and b in the text box.
         private void DisplayDiff(RichTextBox rtb, IFormatter f, ArrayList a, ArrayList b, PositionArrayDiff diff,
             int indent, string path)
         {
@@ -211,6 +262,7 @@ namespace json_merge
             }
         }
 
+        // Shows the difference between a and b in the text box.
         private void DisplayDiff(RichTextBox rtb, IFormatter f, ArrayList a, ArrayList b, HashDiff diff,
             int indent, string path)
         {
@@ -229,8 +281,10 @@ namespace json_merge
             }
         }
 
+        // Prevents infinite recursion in scroll events.
         private bool _recursing = false;
 
+        // Implements syncrhonized scrolling.
         private void aTextBox_Scroll(object sender, EventArgs e)
         {
             if (_recursing) return;
@@ -240,6 +294,7 @@ namespace json_merge
             _recursing = false;
         }
 
+        // Implements syncrhonized scrolling.
         private void bTextBox_Scroll(object sender, EventArgs e)
         {
             if (_recursing) return;
@@ -249,6 +304,7 @@ namespace json_merge
             _recursing = false;
         }
 
+        // Implements syncrhonized scrolling.
         private void cTextBox_Scroll(object sender, EventArgs e)
         {
             if (_recursing) return;
@@ -258,6 +314,7 @@ namespace json_merge
             _recursing = false;
         }
 
+        // Scrolls to the current item in the _diff_lines array.
         private void ScrollToCurrentDiff()
         {
             Win32.SendMessage(aTextBox.Handle, Win32.EM_LINESCROLL, 0, -100000);
@@ -269,6 +326,7 @@ namespace json_merge
             Win32.SetScrollPos(cTextBox.Handle, Win32.GetScrollPos(aTextBox.Handle));
         }
 
+        // Scrolls to the next item in the _diff_lines array.
         private void nextDifferenceToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ++_current_diff;
@@ -277,6 +335,7 @@ namespace json_merge
             ScrollToCurrentDiff();
         }
 
+        // Scrolls to the previous item in the _diff_lines array.
         private void previousDifferenceToolStripMenuItem_Click(object sender, EventArgs e)
         {
             --_current_diff;

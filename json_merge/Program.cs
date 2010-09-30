@@ -12,15 +12,21 @@ namespace json_merge
 {
     class Program
     {
+        // Set to true if we should use JSON rather than SJSON.
         static bool _use_json = false;
+
+        // Set to true if results should be displayed in window mode.
         static bool _window = false;
 
+        // Shows an error message.
         static void Error(string s)
         {
             Show(s, "Error");
             Environment.Exit(-1);
         }
 
+        // Shows the message, either as a dialog in windowed mode, or on
+        // the command line in command line mode.
         static void Show(string s, string title)
         {
             if (_window)
@@ -35,6 +41,7 @@ namespace json_merge
                 Console.WriteLine(s);
         }
 
+        // Loads a JSON or SJSON file.
         static Hashtable Load(string s)
         {
             if (!File.Exists(s))
@@ -45,6 +52,7 @@ namespace json_merge
                 return SJSON.Load(s);
         }
 
+        // Saves a JSON or SJSON file.
         static void Save(Hashtable h, string s)
         {
             if (_use_json)
@@ -55,10 +63,15 @@ namespace json_merge
 
         static void Main(string[] args)
         {
+            // We need to set this to prevent parse errors in JSON/SJSON parsing.
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            
+            // Print usage information if there where no arguments.
             if (args.Length == 0)
                 PrintUsage();
 
+            // -hold can be used as a debugging tool, to give a debugger the chance
+            // to attach to the process when it is just starting up.
             bool escape_hold = false;
 
             int i = 0;
@@ -134,6 +147,7 @@ namespace json_merge
             }
         }
 
+        // Prints usage information.
         static void PrintUsage()
         {
             string usage =

@@ -25,7 +25,6 @@ namespace json_merge
         /// <summary>
         /// Encodes the object o in the simplified JSON format (not as a root object).
         /// </summary>
-        /// <returns></returns>
         public static string EncodeObject(object o)
         {
             StringBuilder builder = new StringBuilder();
@@ -67,11 +66,17 @@ namespace json_merge
             fs.Close();
         }
 
+        /// <summary>
+        /// Writes the root object of the SJSON file.
+        /// </summary>
         public static void WriteRootObject(Hashtable t, StringBuilder builder)
         {
            WriteObjectFields(t, builder, 0);
         }
 
+        /// <summary>
+        /// Writes the object field t[key].
+        /// </summary>
         public static void WriteObjectField(Hashtable t, string key, StringBuilder builder, int indentation)
         {
             WriteNewLine(builder, indentation);
@@ -80,6 +85,9 @@ namespace json_merge
             Write(t[key], builder, indentation);
         }
 
+        /// <summary>
+        /// Writes all the fields of the SJSON object t.
+        /// </summary>
         public static void WriteObjectFields(Hashtable t, StringBuilder builder, int indentation)
         {
             List<string> keys = t.Keys.Cast<string>().ToList();
@@ -88,6 +96,9 @@ namespace json_merge
                 WriteObjectField(t, key, builder, indentation);
         }
 
+        /// <summary>
+        /// Writes a new line followed by specified indentation.
+        /// </summary>
         public static void WriteNewLine(StringBuilder builder, int indentation)
         {
             builder.Append('\n');
@@ -95,6 +106,9 @@ namespace json_merge
                 builder.Append("    ");
         }
 
+        /// <summary>
+        /// Generic SJSON object writer.
+        /// </summary>
         public static void Write(object o, StringBuilder builder, int indentation)
         {
             if (o == null)
@@ -121,6 +135,9 @@ namespace json_merge
                 throw new ArgumentException("Unknown object");
         }
 
+        /// <summary>
+        /// Writes a string in SJSON format.
+        /// </summary>
         public static void WriteString(String s, StringBuilder builder)
         {
             builder.Append('"');
@@ -133,6 +150,9 @@ namespace json_merge
             builder.Append('"');
         }
 
+        /// <summary>
+        /// Writes an array in SJSON format.
+        /// </summary>
         public static void WriteArray(ArrayList a, StringBuilder builder, int indentation)
         {
             builder.Append('[');
@@ -144,6 +164,9 @@ namespace json_merge
             builder.Append(']');
         }
 
+        /// <summary>
+        /// Writes on object in SJSON format.
+        /// </summary>
         public static void WriteObject(Hashtable t, StringBuilder builder, int indentation)
         {
             builder.Append('{');
