@@ -15,7 +15,8 @@ namespace json_merge
         IFormatter _af, _bf;
         bool _json;
         List<int> _diff_lines = new List<int>();
-        int current_diff = 0;
+        int _last_diff_line = 0;
+        int _current_diff = 0;
 
         public DiffVisualForm(Hashtable a, Hashtable b, HashDiff diff, bool json)
         {
@@ -72,7 +73,9 @@ namespace json_merge
 
         private void RemovedText(string astr, string bstr)
         {
-            _diff_lines.Add(aTextBox.Lines.Count());
+            if (aTextBox.Lines.Count() != _last_diff_line + 1)
+                _diff_lines.Add(aTextBox.Lines.Count());
+            _last_diff_line = aTextBox.Lines.Count();
 
             aTextBox.SelectionBackColor = Color.Pink;
             bTextBox.SelectionBackColor = Color.Pink;
@@ -87,7 +90,9 @@ namespace json_merge
 
         private void ChangedText(string astr, string bstr)
         {
-            _diff_lines.Add(aTextBox.Lines.Count());
+            if (aTextBox.Lines.Count() != _last_diff_line + 1)
+                _diff_lines.Add(aTextBox.Lines.Count());
+            _last_diff_line = aTextBox.Lines.Count();
 
             aTextBox.SelectionBackColor = Color.Yellow;
             bTextBox.SelectionBackColor = Color.Yellow;
@@ -262,23 +267,26 @@ namespace json_merge
         private void ScrollToCurrentDiff()
         {
             Win32.SendMessage(aTextBox.Handle, Win32.EM_LINESCROLL, 0, -100000);
-            Win32.SendMessage(aTextBox.Handle, Win32.EM_LINESCROLL, 0, _diff_lines[current_diff]);
+            int line = _diff_lines[_current_diff] - 10;
+            if (line < 0)
+                line = 0;
+            Win32.SendMessage(aTextBox.Handle, Win32.EM_LINESCROLL, 0, line);
             SetScrollPos(bTextBox.Handle, GetScrollPos(aTextBox.Handle));
         }
 
         private void nextDifferenceToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ++current_diff;
-            if (current_diff >= _diff_lines.Count)
-                current_diff = _diff_lines.Count - 1;
+            ++_current_diff;
+            if (_current_diff >= _diff_lines.Count)
+                _current_diff = _diff_lines.Count - 1;
             ScrollToCurrentDiff();
         }
 
         private void previousDifferenceToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            --current_diff;
-            if (current_diff < 0)
-                current_diff = 0;
+            --_current_diff;
+            if (_current_diff < 0)
+                _current_diff = 0;
             ScrollToCurrentDiff();
         }
     }
