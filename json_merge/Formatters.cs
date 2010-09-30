@@ -58,6 +58,8 @@ namespace json_merge
     {
         public string ObjectField(Hashtable a, string key, int indent)
         {
+            if (!a.ContainsKey(key))
+                return "";
             StringBuilder sb = new StringBuilder();
             SJSON.WriteObjectField(a, key, sb, indent);
             return sb.ToString();
@@ -148,6 +150,8 @@ namespace json_merge
 
         public string ObjectField(Hashtable a, string key, int indent)
         {
+            if (!a.ContainsKey(key))
+                return "";
             StringBuilder sb = new StringBuilder();
             JSON.WriteObjectField(a, key, Comma, sb, indent);
             return sb.ToString();
