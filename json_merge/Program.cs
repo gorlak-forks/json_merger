@@ -126,6 +126,11 @@ namespace json_merge
                         Hashtable result = JsonDiff.Merge(parent, theirs, mine);
                         Save(result, args[i + 4]);
                     }
+
+                    // Remove source files (should their be an option for this?)
+                    File.Delete(args[i + 1]);
+                    File.Delete(args[i + 2]);
+                    File.Delete(args[i + 3]);
                     i += 5;
                 }
                 else if (args[i] == "-help")
