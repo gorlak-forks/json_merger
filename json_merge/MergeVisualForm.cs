@@ -59,6 +59,11 @@ namespace json_merge
                 _cf = new SjsonFormatter();
             }
 
+            // Enforce object creation (you can get a highlighting bug otherwise).
+            IntPtr ah = aTextBox.Handle;
+            IntPtr bh = bTextBox.Handle;
+            IntPtr ch = cTextBox.Handle;
+
             // This while loop is a rather ugly thing.
             //
             // We use the _line_number Dictionary to store the highest line number where

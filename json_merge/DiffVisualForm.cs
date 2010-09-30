@@ -52,6 +52,10 @@ namespace json_merge
 
             _diff_lines.Add(0);
 
+            // Enforce object creation (you can get a highlighting bug otherwise).
+            IntPtr ah = aTextBox.Handle;
+            IntPtr bh = bTextBox.Handle;
+
             if (_json)
             {
                 SameText("{", "{");
@@ -62,6 +66,7 @@ namespace json_merge
                 DisplayDiff(a, b, diff, 0);
 
             _diff_lines.Add(aTextBox.Lines.Count());
+
             aTextBox.SelectionStart = 0;
             aTextBox.SelectionLength = 0;
             bTextBox.SelectionStart = 0;
