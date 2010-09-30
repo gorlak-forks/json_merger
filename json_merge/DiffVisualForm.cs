@@ -204,64 +204,14 @@ namespace json_merge
             }
         }
 
-        private unsafe Win32.POINT GetScrollPos(IntPtr handle)
+        private void aTextBox_Scroll(object sender, EventArgs e)
         {
-            Win32.POINT res = new Win32.POINT();
-            IntPtr ptr = new IntPtr(&res);
-            Win32.SendMessage(handle, Win32.EM_GETSCROLLPOS, 0, ptr);
-            return res;
+            Win32.SetScrollPos(bTextBox.Handle, Win32.GetScrollPos(aTextBox.Handle));
         }
 
-        private unsafe void SetScrollPosRaw(IntPtr handle, Win32.POINT point)
+        private void bTextBox_Scroll(object sender, EventArgs e)
         {
-            IntPtr ptr = new IntPtr(&point);
-            Win32.SendMessage(handle, Win32.EM_SETSCROLLPOS, 0, ptr);
-        }
-
-        static bool _recursing = false;
-
-        private void SetScrollPos(IntPtr handle, Win32.POINT point)
-        {
-            if (_recursing)
-                return;
-
-            _recursing = true;
-            double t0 = -1, t1 = 0, y0 = -1, y1 = 0;
-            int iter_max = 100;
-            while (iter_max-- > 0)
-            {
-                double t = (point.y - y0) / (y1 - y0) * (t1 - t0) + t0;
-                SetScrollPosRaw(handle, new Win32.POINT(point.x, (int)t));
-                Win32.POINT p = GetScrollPos(handle);
-                double yres = p.y;
-                if ((int)yres == point.y || (int)yres == y1 || (int)t == t1)
-                    break;
-                t0 = t1;
-                y0 = y1;
-                t1 = t;
-                y1 = yres;
-            }
-            _recursing = false;
-        }
-
-        private void aTextBox_VScroll(object sender, EventArgs e)
-        {
-           SetScrollPos(bTextBox.Handle, GetScrollPos(aTextBox.Handle));
-        }
-
-        private void aTextBox_HScroll(object sender, EventArgs e)
-        {
-            SetScrollPos(bTextBox.Handle, GetScrollPos(aTextBox.Handle));
-        }
-
-        private void bTextBox_VScroll(object sender, EventArgs e)
-        {
-           SetScrollPos(aTextBox.Handle, GetScrollPos(bTextBox.Handle));
-        }
-
-        private void bTextBox_HScroll(object sender, EventArgs e)
-        {
-            SetScrollPos(aTextBox.Handle, GetScrollPos(bTextBox.Handle));
+            Win32.SetScrollPos(aTextBox.Handle, Win32.GetScrollPos(bTextBox.Handle));
         }
 
         private void ScrollToCurrentDiff()
@@ -271,7 +221,7 @@ namespace json_merge
             if (line < 0)
                 line = 0;
             Win32.SendMessage(aTextBox.Handle, Win32.EM_LINESCROLL, 0, line);
-            SetScrollPos(bTextBox.Handle, GetScrollPos(aTextBox.Handle));
+            Win32.SetScrollPos(bTextBox.Handle, Win32.GetScrollPos(aTextBox.Handle));
         }
 
         private void nextDifferenceToolStripMenuItem_Click(object sender, EventArgs e)

@@ -98,8 +98,21 @@ namespace json_merge
                     Hashtable parent = Load(args[i + 1]);
                     Hashtable theirs = Load(args[i + 2]);
                     Hashtable mine = Load(args[i + 3]);
-                    Hashtable result = JsonDiff.Merge(parent, theirs, mine);
-                    Save(result, args[i + 4]);
+                    if (_window)
+                    {
+                        HashDiff theirs_diff, mine_diff, merged_diff;
+                        Hashtable result = JsonDiff.MergeDetailed(parent, theirs, mine,
+                            out theirs_diff, out mine_diff, out merged_diff);
+                        MergeVisualForm form = new MergeVisualForm(parent, theirs, theirs_diff,
+                            mine, mine_diff, result, merged_diff, _use_json);
+                        form.ShowDialog();
+                        Save(result, args[i + 4]);
+                    }
+                    else
+                    {
+                        Hashtable result = JsonDiff.Merge(parent, theirs, mine);
+                        Save(result, args[i + 4]);
+                    }
                     i += 5;
                 }
                 else if (args[i] == "-help")

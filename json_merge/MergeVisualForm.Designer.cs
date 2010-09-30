@@ -57,7 +57,7 @@
             // 
             this.splitContainer1.Panel2.Controls.Add(this.cTextBox);
             this.splitContainer1.Size = new System.Drawing.Size(840, 722);
-            this.splitContainer1.SplitterDistance = 506;
+            this.splitContainer1.SplitterDistance = 397;
             this.splitContainer1.TabIndex = 0;
             // 
             // splitContainer2
@@ -73,39 +73,48 @@
             // splitContainer2.Panel2
             // 
             this.splitContainer2.Panel2.Controls.Add(this.bTextBox);
-            this.splitContainer2.Size = new System.Drawing.Size(840, 506);
+            this.splitContainer2.Size = new System.Drawing.Size(840, 397);
             this.splitContainer2.SplitterDistance = 415;
             this.splitContainer2.TabIndex = 0;
             // 
             // aTextBox
             // 
             this.aTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.aTextBox.Font = new System.Drawing.Font("Consolas", 9F);
             this.aTextBox.Location = new System.Drawing.Point(0, 0);
             this.aTextBox.Name = "aTextBox";
-            this.aTextBox.Size = new System.Drawing.Size(415, 506);
+            this.aTextBox.Size = new System.Drawing.Size(415, 397);
             this.aTextBox.TabIndex = 0;
             this.aTextBox.Text = "";
             this.aTextBox.WordWrap = false;
+            this.aTextBox.VScroll += new System.EventHandler(this.aTextBox_Scroll);
+            this.aTextBox.HScroll += new System.EventHandler(this.aTextBox_Scroll);
             // 
             // bTextBox
             // 
             this.bTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.bTextBox.Font = new System.Drawing.Font("Consolas", 9F);
             this.bTextBox.Location = new System.Drawing.Point(0, 0);
             this.bTextBox.Name = "bTextBox";
-            this.bTextBox.Size = new System.Drawing.Size(421, 506);
+            this.bTextBox.Size = new System.Drawing.Size(421, 397);
             this.bTextBox.TabIndex = 1;
             this.bTextBox.Text = "";
             this.bTextBox.WordWrap = false;
+            this.bTextBox.VScroll += new System.EventHandler(this.bTextBox_Scroll);
+            this.bTextBox.HScroll += new System.EventHandler(this.bTextBox_Scroll);
             // 
             // cTextBox
             // 
             this.cTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.cTextBox.Font = new System.Drawing.Font("Consolas", 9F);
             this.cTextBox.Location = new System.Drawing.Point(0, 0);
             this.cTextBox.Name = "cTextBox";
-            this.cTextBox.Size = new System.Drawing.Size(840, 212);
+            this.cTextBox.Size = new System.Drawing.Size(840, 321);
             this.cTextBox.TabIndex = 2;
             this.cTextBox.Text = "";
             this.cTextBox.WordWrap = false;
+            this.cTextBox.VScroll += new System.EventHandler(this.cTextBox_Scroll);
+            this.cTextBox.HScroll += new System.EventHandler(this.cTextBox_Scroll);
             // 
             // MergeVisualForm
             // 

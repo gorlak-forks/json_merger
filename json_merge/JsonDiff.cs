@@ -563,8 +563,26 @@ namespace json_merge
             HashDiff right_diff = JsonDiff.Diff(parent, right);
             HashDiff diff = HashDiff.Merge(left_diff, right_diff);
 
-            diff.Apply(parent);
-            return parent;
+            Hashtable res = parent.DeepClone();
+
+            diff.Apply(res);
+            return res;
+        }
+
+        /// <summary>
+        /// Computes the three-way-merge of Json hashtables and returns intermediate results.
+        /// </summary>
+        public static Hashtable MergeDetailed(Hashtable parent, Hashtable left, Hashtable right,
+            out HashDiff left_diff, out HashDiff right_diff, out HashDiff merged_diff)
+        {
+            left_diff = JsonDiff.Diff(parent, left);
+            right_diff = JsonDiff.Diff(parent, right);
+            merged_diff = HashDiff.Merge(left_diff, right_diff);
+
+            Hashtable res = parent.DeepClone();
+
+            merged_diff.Apply(res);
+            return res;
         }
     }
 }

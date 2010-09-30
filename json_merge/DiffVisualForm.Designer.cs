@@ -69,8 +69,8 @@
             this.aTextBox.TabIndex = 0;
             this.aTextBox.Text = "";
             this.aTextBox.WordWrap = false;
-            this.aTextBox.VScroll += new System.EventHandler(this.aTextBox_VScroll);
-            this.aTextBox.HScroll += new System.EventHandler(this.aTextBox_HScroll);
+            this.aTextBox.VScroll += new System.EventHandler(this.aTextBox_Scroll);
+            this.aTextBox.HScroll += new System.EventHandler(this.aTextBox_Scroll);
             // 
             // bTextBox
             // 
@@ -82,8 +82,8 @@
             this.bTextBox.TabIndex = 0;
             this.bTextBox.Text = "";
             this.bTextBox.WordWrap = false;
-            this.bTextBox.VScroll += new System.EventHandler(this.bTextBox_VScroll);
-            this.bTextBox.HScroll += new System.EventHandler(this.bTextBox_HScroll);
+            this.bTextBox.VScroll += new System.EventHandler(this.bTextBox_Scroll);
+            this.bTextBox.HScroll += new System.EventHandler(this.bTextBox_Scroll);
             // 
             // menuStrip1
             // 
